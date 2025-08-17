@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Squid Game Event Registration</title>
+    <style>
+        :root {
+            --squid-pink: #e84158;
+            --squid-red: #c23616;
+            --squid-black: #1e272e;
+            --squid-white: #f5f6fa;
+            --squid-green: #44bd32;
+            --squid-blue: #0097e6;
+            --squid-gray: #dcdde1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', 'Arial Narrow', Arial, sans-serif;
+        }
+        
+        @font-face {
+            font-family: 'Rajdhani';
+            src: url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap');
+        }
+        
+        body {
+            background-color: var(--squid-black);
+            color: var(--squid-white);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(232, 65, 88, 0.15) 0%, transparent 15%),
+                radial-gradient(circle at 90% 80%, rgba(232, 65, 88, 0.15) 0%, transparent 15%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--squid-pink), 
+                var(--squid-green), 
+                var(--squid-blue));
+            border-radius: 0 0 50% 50%;
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 8vw, 4rem);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5rem;
+            color: var(--squid-white);
+            text-shadow: 3px 3px 0 var(--squid-pink),
+                        -3px -3px 0 var(--squid-green);
+        }
+        
+        h2 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            margin: 1.5rem 0 1rem;
+            color: var(--squid-pink);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--squid-pink);
+        }
+        
+        p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background-color: var(--squid-pink);
+            color: var(--squid-white);
+            border: none;
+            border-radius: 50px;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(232, 65, 88, 0.4);
+            margin: 1rem 0;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(232, 65, 88, 0.6);
+        }
+        
+        .button:active {
+            transform: translateY(1px);
+        }
+        
+        .button.guard {
+            background-color: var(--squid-green);
+            box-shadow: 0 3px 10px rgba(68, 189, 50, 0.4);
+        }
+        
+        .button.guard:hover {
+            box-shadow: 0 5px 15px rgba(68, 189, 50, 0.6);
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(30, 39, 46, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+            padding: 1rem;
+            overflow: hidden;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background-color: var(--squid-black);
+            border-radius: 15px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            border: 2px solid var(--squid-pink);
+            box-shadow: 0 0 20px rgba(232, 65, 88, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background-color: var(--squid-pink);
+            padding: 0.75rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-header h3 {
+            color: var(--squid-white);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+        }
+        
+        .modal-body.guard .warning {
+            background-color: rgba(194, 54, 22, 0.2);
+            border-left: 3px solid var(--squid-red);
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--squid-pink);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgba(245, 246, 250, 0.1);
+            border: 2px solid var(--squid-pink);
+            border-radius: 8px;
+            color: var(--squid-white);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--squid-green);
+            background-color: rgba(68, 189, 50, 0.1);
+        }
+        
+        .roles {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .rules {
+            background-color: rgba(30, 39, 46, 0.7);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 2px dashed var(--squid-pink);
+            position: relative;
+        }
+        
+        .rules::before {
+            content: "✧";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--squid-black);
+            color: var(--squid-pink);
+            padding: 0 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .rules ol {
+            padding-left: 1.5rem;
+        }
+        
+        .rules li {
+            margin-bottom: 0.75rem;
+            position: relative;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+        
+        .rules li::marker {
+            color: var(--squid-pink);
+            font-weight: bold;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+            display: none; /* Hide on mobile by default */
+        }
+        
+        .circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 2px dashed var(--squid-pink);
+        }
+        
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 80px solid transparent;
+            border-right: 80px solid transparent;
+            border-bottom: 140px solid var(--squid-green);
+        }
+        
+        .square {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed var(--squid-blue);
+        }
+        
+        .error-message {
+            color: var(--squid-red);
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+                /* ANIMAÇÕES */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* SEÇÃO DE PRÊMIOS */
+        .premios {
+            background-color: rgba(30, 39, 46, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 2px dashed var(--squid-pink);
+            text-align: center;
+        }
+
+        .premios h2 {
+            color: var(--squid-pink);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .premios h2::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--squid-pink);
+        }
+
+        .premios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .premio-card {
+            background: rgba(45, 52, 54, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.4s ease;
+            border: 2px solid var(--squid-pink);
+            box-shadow: 0 4px 15px rgba(232, 65, 88, 0.3);
+        }
+
+        .premio-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 25px rgba(232, 65, 88, 0.5);
+            border-color: var(--squid-green);
+        }
+
+        .premio-imagem {
+            height: 180px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .premio-imagem img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .premio-titulo {
+            color: var(--squid-white);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .premio-valor {
+            color: var(--squid-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .premios-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .premio-card {
+                max-width: 100%;
+            }
+        }
+        
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            header {
+                padding: 3rem 0;
+            }
+            
+            .modal-content {
+                max-width: 600px;
+            }
+            
+            .shape {
+                display: block;
+            }
+            
+            .button {
+                padding: 1rem 2.5rem;
+            }
+            
+            .rules {
+                padding: 2rem;
+            }
+            
+            .modal-body {
+                padding: 2rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .button {
+                padding: 1rem 3rem;
+            }
+        }
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        /* Accessible focus styles */
+        button:focus, input:focus, select:focus {
+            outline: 2px solid var(--squid-blue);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background shapes - visible on larger screens -->
+    <div class="shape circle" style="top: 10%; right: 5%;"></div>
+    <div class="shape triangle" style="top: 60%; left: 5%;"></div>
+    <div class="shape square" style="bottom: 10%; right: 20%;"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Squid Game</h1>
+            <p></p>
+            <button id="registerBtn" class="button">Registrar</button>
+        </header>
+        
+        <section class="rules">
+            <h2>Regras</h2>
+            <ol>
+                <li>Todos os jogadores devem seguir a sintruções dadas pelos guardas.</li>
+                <li>Qualquer quebra de regras resulta em eliminação emidiata.</li>
+                <li>Os jogadores têm de ficar na area dos jogos.</li>
+                <li>Os Guardas têm absoluta prioridade nos jogos.</li>
+                <li>Os jogadores podem formar alianças entre si.</li>
+                <li>Violência é extritamente proibido.</li>
+                <li>O jogador final é o unico que irá ganhar o prémio.</li>
+            </ol>
+
+    <!-- ... Premios ... -->
+    <section class="premios">   
+        <h2>Prêmios</h2>
+        <li>Os premios abaixo são as opçõe sque o vencedor pode escolher, ele só pode escolher 1 prémio.</li>
+        <div class="premios-grid">
+            <!-- Cartão 1 -->
+            <div class="premio-card">
+                <div class="premio-imagem">
+                    <img src="https://media.discordapp.net/attachments/1404800104883556452/1406508143344615516/imagem-2025-08-17-061954407.png?ex=68a2b849&is=68a166c9&hm=5753dc83328512cb84c10520aaff4179c9978300d1770df5a207cbc2ef125f88&=&format=webp&quality=lossless&width=300&height=200" alt="Cartão presente digital da Amazon no valor de 50 euros">
+                </div>
+                <h3 class="premio-titulo">Cartão Presente</h3>
+                <div class="premio-valor">20€</div>
+                <p>Sony PlayStation</p>
+            </div>
+            
+            <!-- Cartão 2 -->
+            <div class="premio-card">
+                <div class="premio-imagem">
+                    <img src="https://media.discordapp.net/attachments/1404800104883556452/1406513796457168906/Netflix-Logo-Streaming-Platform-765.png?ex=68a2bd8c&is=68a16c0c&hm=8be8a6f781b93f28351a766e9c3d54b68655a300fcd7127d231a3786ede8d89e&=&format=webp&quality=lossless&width=250&height=150" alt="Cartão presente digital da Worten no valor de 30 euros">
+                </div>
+                <h3 class="premio-titulo">Cartão Presente</h3>
+                <div class="premio-valor">25€</div>
+                <p>Netflix</p>
+            </div>
+            
+            <!-- Cartão 3 -->
+            <div class="premio-card">
+                <div class="premio-imagem">
+                    <img src="https://media.discordapp.net/attachments/1404800104883556452/1406515316770603138/Spotify-Logo.png?ex=68a2bef7&is=68a16d77&hm=80d624442600502f75b75cb8cf9ba34c34fcf6b7ad2cd110d0ae6ea98e990a2f&=&format=webp&quality=lossless&width=300&height=200" alt="Cartão presente Steam para compra de jogos digitais">
+                </div>
+                <h3 class="premio-titulo">Cartão Presente</h3>
+                <div class="premio-valor">21€</div>
+                <p>Spotify Premium</p>
+            </div>
+        </div>
+    </section>
+    </div>
+    
+    <!-- Role Selection Modal -->
+    <div class="modal" id="roleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Choose Your Role</h3>
+            </div>
+            <div class="modal-body">
+                <p>Select whether you want to participate as a Player or Guard.</p>
+                <div class="roles">
+                    <button id="playerRoleBtn" class="button">Player</button>
+                    <button id="guardRoleBtn" class="button guard">Guard</button>
+                </div>
+                <div id="guardWarning" style="display: none;">
+                    <p class="warning">Warning: There are only a few guard positions available!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Player Registration Modal -->
+    <div class="modal" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registro de Jogador</h3>
+            </div>
+            <div class="modal-body">
+                <form id="playerForm">
+                    <div class="form-group">
+                        <label for="playerFirstName">Primeiro Nome</label>
+                        <input type="text" id="playerFirstName" required>
+                        <div class="error-message" id="playerFirstNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerLastName">Ultimo Nome</label>
+                        <input type="text" id="playerLastName" required>
+                        <div class="error-message" id="playerLastNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerClass">Turma</label>
+                        <input type="text" id="playerClass" required>
+                        <div class="error-message" id="playerClassError"></div>
+                    </div>
+                    <button type="submit" class="button">Finalizar Registro</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Guard Registration Modal -->
+    <div class="modal" id="guardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Guard Registration</h3>
+            </div>
+            <div class="modal-body guard">
+                <div class="warning">
+                    <p>Guard positions are limited. By registering as a guard, you agree to enforce the rules of the game.</p>
+                </div>
+                <form id="guardForm">
+                    <div class="form-group">
+                        <label for="guardName">Full Name</label>
+                        <input type="text" id="guardName" required>
+                        <div class="error-message" id="guardNameError">Please enter your full name</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardClass">Class</label>
+                        <input type="text" id="guardClass" required>
+                        <div class="error-message" id="guardClassError">Please enter your class</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardPhone">Phone Number</label>
+                        <input type="tel" id="guardPhone" required>
+                        <div class="error-message" id="guardPhoneError">Please enter a valid phone number</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardBringPhone">Do you bring your phone to school?</label>
+                        <select id="guardBringPhone" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                        <div class="error-message" id="guardBringPhoneError">Please select an option</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardWilling">Are you willing to help with problems during the event?</label>
+                        <select id="guardWilling" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                        <div class="error-message" id="guardWillingError">Please select an option</div>
+                    </div>
+                    <button type="submit" class="button guard">Submit Registration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submitted Modal -->
+    <div class="modal" id="submittedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registro Concluido</h3>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage">O teu Registro está dentro do nosso sistema!</p>
+                <button id="closeModalBtn" class="button">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const registerBtn = document.getElementById('registerBtn');
+        const roleModal = document.getElementById('roleModal');
+        const playerRoleBtn = document.getElementById('playerRoleBtn');
+        const guardRoleBtn = document.getElementById('guardRoleBtn');
+        const guardWarning = document.getElementById('guardWarning');
+        const playerModal = document.getElementById('playerModal');
+        const guardModal = document.getElementById('guardModal');
+        const playerForm = document.getElementById('playerForm');
+        const guardForm = document.getElementById('guardForm');
+        const submittedModal = document.getElementById('submittedModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const successMessage = document.getElementById('successMessage');
+        
+        // Store registration status
+        let isRegistered = false;
+        let registrationData = {};
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already registered (from localStorage)
+            if (localStorage.getItem('squidgame_registered')) {
+                registerBtn.disabled = true;
+                registerBtn.textContent = 'Já estás registrado';
+                isRegistered = true;
+            }
+            
+            // Add event listeners for input validation
+            setupFormValidation();
+        });
+        
+        // Set up form validation
+        function setupFormValidation() {
+            const validateInput = (input, errorElement) => {
+                if (!input.value.trim()) {
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            };
+            
+            // Player form validation
+            document.getElementById('playerFirstName').addEventListener('blur', (e) => {
+                validateInput(e.target, document.getElementById('playerFirstNameError'));
+            });
+            
+            document.getElementById('playerLastName').addEventListener('blur', (e) => {
+                validateInput(e.target, document.getElementById('playerLastNameError'));
+            });
+            
+            document.getElementById('playerClass').addEventListener('blur', (e) => {
+                validateInput(e.target, document.getElementById('playerClassError'));
+            });
+            
+            // Guard form validation
+            document.getElementById('guardName').addEventListener('blur', (e) => {
+                validateInput(e.target, document.getElementById('guardNameError'));
+            });
+            
+            document.getElementById('guardClass').addEventListener('blur', (e) => {
+                validateInput(e.target, document.getElementById('guardClassError'));
+            });
+            
+            document.getElementById('guardPhone').addEventListener('blur', (e) => {
+                const phone = e.target.value.trim();
+                const errorElement = document.getElementById('guardPhoneError');
+                
+                if (!phone) {
+                    errorElement.textContent = 'Please enter a phone number';
+                    errorElement.style.display = 'block';
+                    return false;
+                } else if (!/^[\d\s\(\)\-+]+$/.test(phone)) {
+                    errorElement.textContent = 'Please enter a valid phone number';
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            });
+            
+            document.getElementById('guardBringPhone').addEventListener('change', (e) => {
+                const errorElement = document.getElementById('guardBringPhoneError');
+                if (!e.target.value) {
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            });
+            
+            document.getElementById('guardWilling').addEventListener('change', (e) => {
+                const errorElement = document.getElementById('guardWillingError');
+                if (!e.target.value) {
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            });
+        }
+        
+        // Validate a form
+        function validateForm(formId) {
+            let isValid = true;
+            
+            if (formId === 'playerForm') {
+                isValid = validateInput(document.getElementById('playerFirstName'), document.getElementById('playerFirstNameError')) &&
+                         validateInput(document.getElementById('playerLastName'), document.getElementById('playerLastNameError')) &&
+                         validateInput(document.getElementById('playerClass'), document.getElementById('playerClassError'));
+            } else if (formId === 'guardForm') {
+                isValid = validateInput(document.getElementById('guardName'), document.getElementById('guardNameError')) &&
+                         validateInput(document.getElementById('guardClass'), document.getElementById('guardClassError')) &&
+                         validatePhone(document.getElementById('guardPhone'), document.getElementById('guardPhoneError')) &&
+                         validateSelect(document.getElementById('guardBringPhone'), document.getElementById('guardBringPhoneError')) &&
+                         validateSelect(document.getElementById('guardWilling'), document.getElementById('guardWillingError'));
+            }
+            
+            return isValid;
+        }
+        
+        function validateInput(input, errorElement) {
+            if (!input.value.trim()) {
+                errorElement.style.display = 'block';
+                return false;
+            }
+            errorElement.style.display = 'none';
+            return true;
+        }
+        
+        function validatePhone(input, errorElement) {
+            const phone = input.value.trim();
+            if (!phone) {
+                errorElement.textContent = 'Please enter a phone number';
+                errorElement.style.display = 'block';
+                return false;
+            } else if (!/^[\d\s\(\)\-+]+$/.test(phone)) {
+                errorElement.textContent = 'Please enter a valid phone number';
+                errorElement.style.display = 'block';
+                return false;
+            }
+            errorElement.style.display = 'none';
+            return true;
+        }
+        
+        function validateSelect(select, errorElement) {
+            if (!select.value) {
+                errorElement.style.display = 'block';
+                return false;
+            }
+            errorElement.style.display = 'none';
+            return true;
+        }
+        
+        // Event Listeners
+        registerBtn.addEventListener('click', () => {
+            if (isRegistered) return;
+            showModal(playerModal);
+        });
+        
+        playerRoleBtn.addEventListener('click', () => {
+            hideModal(roleModal);
+            showModal(playerModal);
+        });
+        
+        guardRoleBtn.addEventListener('click', () => {
+            guardWarning.style.display = 'block';
+            setTimeout(() => {
+                hideModal(roleModal);
+                showModal(guardModal);
+            }, 300);
+        });
+        
+        // Form Submissions
+        playerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!validateForm('playerForm')) return;
+            
+            registrationData = {
+                role: 'player',
+                firstName: document.getElementById('playerFirstName').value.trim(),
+                lastName: document.getElementById('playerLastName').value.trim(),
+                class: document.getElementById('playerClass').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            
+            submitForm(registrationData);
+        });
+        
+        guardForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!validateForm('guardForm')) return;
+            
+            registrationData = {
+                role: 'guard',
+                name: document.getElementById('guardName').value.trim(),
+                class: document.getElementById('guardClass').value.trim(),
+                phone: document.getElementById('guardPhone').value.trim(),
+                bringsPhone: document.getElementById('guardBringPhone').value,
+                willingToHelp: document.getElementById('guardWilling').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            submitForm(registrationData);
+        });
+        
+        // Close modals
+        closeModalBtn.addEventListener('click', () => {
+            hideModal(submittedModal);
+            location.reload();
+        });
+        
+        // Close modals when clicking outside content
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal(modal);
+                }
+            });
+        });
+        
+        // Show modal helper function
+        function showModal(modal) {
+            document.body.classList.add('modal-open');
+            modal.classList.add('active');
+            // Focus on first input if available
+            const firstInput = modal.querySelector('input, select, button');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }
+        
+        // Hide modal helper function
+        function hideModal(modal) {
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+        
+        // Function to submit form data
+        function submitForm(data) {
+            // Disable submit button
+            const submitButton = data.role === 'player' 
+                ? playerForm.querySelector('button[type="submit"]') 
+                : guardForm.querySelector('button[type="submit"]');
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Registrando...';
+            
+            // In a real implementation, you would send this to your backend
+            // which would then forward to Discord webhook
+            
+            // For demo purposes, we'll simulate an API call
+            setTimeout(() => {
+                // Mark as registered
+                localStorage.setItem('squidgame_registered', 'true');
+                isRegistered = true;
+                
+                // Hide the current modal
+                hideModal(data.role === 'player' ? playerModal : guardModal);
+                
+                // Show success message
+                successMessage.textContent = `Registro concluido! `;
+                showModal(submittedModal);
+                
+                // Log the data (in a real app, this would go to Discord)
+                console.log('Registration data:', data);
+                
+                // Simulate sending to Discord webhook
+                const discordWebhookUrl = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_URL';
+                
+                // This is just a simulation - in a real implementation you'd use your backend
+                fetch(discordWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: `New ${data.role} Registration`,
+                            fields: [
+                                { name: 'Name', value: data.name || `${data.firstName} ${data.lastName}` },
+                                { name: 'Class', value: data.class },
+                                ...(data.role === 'guard' ? [
+                                    { name: 'Phone', value: data.phone },
+                                    { name: 'Brings Phone', value: data.bringsPhone },
+                                    { name: 'Willing to Help', value: data.willingToHelp }
+                                ] : []),
+                                { name: 'Registration Time', value: new Date(data.timestamp).toLocaleString() }
+                            ],
+                            color: data.role === 'player' ? 0xe84158 : 0x44bd32
+                        }]
+                    })
+                }).catch(error => {
+                    console.error('Error sending to Discord:', error);
+                });
+                
+            }, 1500);
+        }
+        
+        // Prevent form scrolling from bubbling up
+        document.querySelectorAll('.modal-body').forEach(modalBody => {
+            modalBody.addEventListener('scroll', (e) => {
+                e.stopPropagation();
+            });
+        });
+        
+        // Close modals with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const openModal = document.querySelector('.modal.active');
+                if (openModal && openModal !== submittedModal) {
+                    hideModal(openModal);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
