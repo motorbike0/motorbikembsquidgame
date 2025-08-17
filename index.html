@@ -922,33 +922,48 @@
                 // Log the data (in a real app, this would go to Discord)
                 console.log('Registration data:', data);
                 
-                // Simulate sending to Discord webhook
-                const discordWebhookUrl = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_URL';
+                // Send to Pipedream webhook
+                const discordWebhookUrl = 'https://eoguehvtvsblr3m.m.pipedream.net';
                 
-                // This is just a simulation - in a real implementation you'd use your backend
+                // Simple JSON payload for Pipedream
+                const payload = data.role === 'player' 
+                    ? {
+                        playerFirstName: data.firstName,
+                        playerLastName: data.lastName,
+                        playerClass: data.class,
+                        role: data.role,
+                        timestamp: data.timestamp
+                    }
+                    : {
+                        guardName: data.name,
+                        guardClass: data.class,
+                        guardPhone: data.phone,
+                        guardBringsPhone: data.bringsPhone,
+                        guardWillingToHelp: data.willingToHelp,
+                        role: data.role,
+                        timestamp: data.timestamp
+                    };
+
                 fetch(discordWebhookUrl, {
-                    method: 'POST',
+                    method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        embeds: [{
-                            title: `New ${data.role} Registration`,
-                            fields: [
-                                { name: 'Name', value: data.name || `${data.firstName} ${data.lastName}` },
-                                { name: 'Class', value: data.class },
-                                ...(data.role === 'guard' ? [
-                                    { name: 'Phone', value: data.phone },
-                                    { name: 'Brings Phone', value: data.bringsPhone },
-                                    { name: 'Willing to Help', value: data.willingToHelp }
-                                ] : []),
-                                { name: 'Registration Time', value: new Date(data.timestamp).toLocaleString() }
-                            ],
-                            color: data.role === 'player' ? 0xe84158 : 0x44bd32
-                        }]
-                    })
-                }).catch(error => {
-                    console.error('Error sending to Discord:', error);
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(result => {
+                    console.log('Successfully sent to Pipedream:', result);
+                })
+                .catch(error => {
+                    console.error('Error sending to Pipedream:', error);
+                    // Show user-friendly error message
+                    successMessage.textContent = 'Registro concluido! (Note: There was an issue sending the notification)';
                 });
                 
             }, 1500);
@@ -973,4 +988,3 @@
     </script>
 </body>
 </html>
-
