@@ -584,12 +584,12 @@
 
     <!-- Seção Exclusiva para Registrados -->
     <section id="registeredSection" class="registered-only" style="display: none;">
-        <h2>Área Exclusiva para Registrados</h2>
-        <p>Bem-vindo à área especial! Como participante registrado, você tem acesso a informações adicionais sobre o evento Squid Game.</p>
+        <h2></h2>
+        <p></p>
         <div class="premios-grid">
             <div class="premio-card">
-                <h3 class="premio-titulo">Informações Internas</h3>
-                <p>Detalhes sobre o evento serão divulgados em breve. Fique atento!</p>
+                <h3 class="premio-titulo">Informações</h3>
+                <p>O evento será em 26/9 no horário do almoço, todos os membros para participar têm de estar registrados, todos os membros têm de se encontrar na rampa perto da portaria. As 13:45 o evento irá iniciar, então têm 15 minutos para almoçar, caso o tempo de intervalo de almoço não seja suficiente os jogadores restantes serão anotados e continuarão na segunda-feira.   </p>
             </div>
         </div>
     </section>
@@ -722,7 +722,7 @@
                 <h3>Registro Concluido</h3>
             </div>
             <div class="modal-body">
-                <p id="successMessage">O teu Registro está dentro do nosso sistema!</p>
+                <p id="successMessage">O teu Registro está dentro do nosso sistema! Desbloqueaste a nova categoria de Informações conclui o registro para ve-la!</p>
                 <button id="closeModalBtn" class="button">Fechar</button>
             </div>
         </div>
@@ -760,6 +760,8 @@
                 registerBtn.disabled = true;
                 registerBtn.textContent = 'Já estás registrado';
                 isRegistered = true;
+                // Show exclusive section for registered users
+                document.getElementById('registeredSection').style.display = 'block';
             }
 
             // Add event listeners for input validation
@@ -1004,8 +1006,8 @@
                 // Hide the current modal
                 hideModal(data.role === 'player' ? playerModal : guardModal);
                 
-                // Show success message
-                successMessage.textContent = `Registro concluido! `;
+                // Show success message 
+                successMessage.textContent = `O teu Registro está dentro do nosso sistema! Desbloqueaste a nova categoria de Informações conclui o registro para ve-la! `;
                 showModal(submittedModal);
                 
                 // Log the data (in a real app, this would go to Discord)
