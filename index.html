@@ -467,8 +467,91 @@
             overflow: hidden;
         }
         
+        /* Custom Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-selected {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgba(245, 246, 250, 0.1);
+            border: 2px solid var(--squid-pink);
+            border-radius: 8px;
+            color: var(--squid-white);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-selected::after {
+            content: '▼';
+            color: var(--squid-pink);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .dropdown-selected:focus {
+            outline: none;
+            border-color: var(--squid-green);
+            background-color: rgba(68, 189, 50, 0.1);
+        }
+
+        .dropdown-selected.open::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--squid-black);
+            border: 2px solid var(--squid-pink);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dropdown-options.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-options li {
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--squid-white);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .dropdown-options li:hover,
+        .dropdown-options li:focus {
+            background-color: rgba(232, 65, 88, 0.2);
+        }
+
+        .dropdown-options li.selected {
+            background-color: rgba(68, 189, 50, 0.3);
+            color: var(--squid-green);
+        }
+
         /* Accessible focus styles */
-        button:focus, input:focus, select:focus {
+        button:focus, input:focus, select:focus, .dropdown-selected:focus {
             outline: 2px solid var(--squid-blue);
             outline-offset: 2px;
         }
@@ -606,8 +689,22 @@
                         <div class="error-message" id="playerLastNameError"></div>
                     </div>
                     <div class="form-group">
-                        <label for="playerClass">Turma</label>
-                        <input type="text" id="playerClass" required>
+                        <label for="playerClassDropdown">Turma</label>
+                        <div class="custom-dropdown" id="playerClassDropdown">
+                            <div class="dropdown-selected" tabindex="0">Selecione uma turma</div>
+                            <ul class="dropdown-options">
+                                <li data-value="10A">10A</li>
+                                <li data-value="10B">10B</li>
+                                <li data-value="10C">10C</li>
+                                <li data-value="11A">11A</li>
+                                <li data-value="11B">11B</li>
+                                <li data-value="11C">11C</li>
+                                <li data-value="12A">12A</li>
+                                <li data-value="12B">12B</li>
+                                <li data-value="12C">12C</li>
+                            </ul>
+                        </div>
+                        <input type="hidden" id="playerClass" name="playerClass" required>
                         <div class="error-message" id="playerClassError"></div>
                     </div>
                     <button type="submit" class="button">Finalizar Registro</button>
@@ -693,6 +790,12 @@
         const submittedModal = document.getElementById('submittedModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const successMessage = document.getElementById('successMessage');
+
+        // Dropdown elements
+        const dropdown = document.getElementById('playerClassDropdown');
+        const dropdownSelected = dropdown.querySelector('.dropdown-selected');
+        const dropdownOptions = dropdown.querySelector('.dropdown-options');
+        const hiddenInput = document.getElementById('playerClass');
         
         // Store registration status
         let isRegistered = false;
@@ -706,9 +809,12 @@
                 registerBtn.textContent = 'Já estás registrado';
                 isRegistered = true;
             }
-            
+
             // Add event listeners for input validation
             setupFormValidation();
+
+            // Initialize dropdown
+            initDropdown();
         });
         
         // Set up form validation
@@ -1016,6 +1122,97 @@
                 }
             }
         });
+
+        // Initialize dropdown functionality
+        function initDropdown() {
+            // Toggle dropdown on click
+            dropdownSelected.addEventListener('click', () => {
+                const isOpen = dropdownOptions.classList.contains('open');
+                if (isOpen) {
+                    closeDropdown();
+                } else {
+                    openDropdown();
+                }
+            });
+
+            // Select option
+            dropdownOptions.addEventListener('click', (e) => {
+                if (e.target.tagName === 'LI') {
+                    const value = e.target.getAttribute('data-value');
+                    const text = e.target.textContent;
+                    dropdownSelected.textContent = text;
+                    hiddenInput.value = value;
+                    closeDropdown();
+                    // Remove selected class from all
+                    dropdownOptions.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+                    // Add selected class to clicked
+                    e.target.classList.add('selected');
+                    // Trigger validation
+                    document.getElementById('playerClassError').style.display = 'none';
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Keyboard navigation
+            dropdownSelected.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    dropdownSelected.click();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (!dropdownOptions.classList.contains('open')) {
+                        openDropdown();
+                    }
+                    const firstLi = dropdownOptions.querySelector('li');
+                    if (firstLi) firstLi.focus();
+                }
+            });
+
+            dropdownOptions.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    dropdownSelected.focus();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const next = e.target.nextElementSibling;
+                    if (next) next.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prev = e.target.previousElementSibling;
+                    if (prev) prev.focus();
+                    else dropdownSelected.focus();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.click();
+                }
+            });
+        }
+
+        function openDropdown() {
+            dropdownSelected.classList.add('open');
+            dropdownOptions.classList.add('open');
+            // Animate opening with inline styles
+            dropdownOptions.style.maxHeight = '0px';
+            dropdownOptions.style.overflow = 'hidden';
+            setTimeout(() => {
+                dropdownOptions.style.maxHeight = '200px';
+                dropdownOptions.style.overflow = 'auto';
+            }, 10);
+        }
+
+        function closeDropdown() {
+            dropdownSelected.classList.remove('open');
+            dropdownOptions.classList.remove('open');
+            // Animate closing with inline styles
+            dropdownOptions.style.maxHeight = '0px';
+            dropdownOptions.style.overflow = 'hidden';
+        }
     </script>
 </body>
 </html>
