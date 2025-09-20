@@ -1013,48 +1013,37 @@
                 // Log the data (in a real app, this would go to Discord)
                 console.log('Registration data:', data);
                 
-                // Send to Pipedream webhook
-                const discordWebhookUrl = 'https://eoguehvtvsblr3m.m.pipedream.net';
-                
-                // Simple JSON payload for Pipedream
-                const payload = data.role === 'player' 
-                    ? {
-                        playerFirstName: data.firstName,
-                        playerLastName: data.lastName,
-                        playerClass: data.class,
-                        role: data.role,
-                        timestamp: data.timestamp
-                    }
-                    : {
-                        guardName: data.name,
-                        guardClass: data.class,
-                        guardPhone: data.phone,
-                        guardBringsPhone: data.bringsPhone,
-                        guardWillingToHelp: data.willingToHelp,
-                        role: data.role,
-                        timestamp: data.timestamp
-                    };
+                // Send to secure backend API
+                const apiUrl = window.location.origin + '/api/register';
 
-                fetch(discordWebhookUrl, {
-                    method: 'POST', 
+                fetch(apiUrl, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(data)
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json().then(err => {
+                            throw new Error(err.error || `HTTP error! status: ${response.status}`);
+                        });
                     }
-                    return response.text();
+                    return response.json();
                 })
                 .then(result => {
-                    console.log('Successfully sent to Pipedream:', result);
+                    console.log('Registration successful:', result);
+
+                    // Update success message based on webhook status
+                    if (result.webhookStatus === 'sent') {
+                        successMessage.textContent = 'O teu Registro está dentro do nosso sistema! Desbloqueaste a nova categoria de Informações conclui o registro para ve-la!';
+                    } else {
+                        successMessage.textContent = 'Registro concluido! (Note: There was an issue sending the notification)';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error sending to Pipedream:', error);
-                    // Show user-friendly error message
-                    successMessage.textContent = 'Registro concluido! (Note: There was an issue sending the notification)';
+                    console.error('Registration error:', error);
+                    successMessage.textContent = 'Erro no registro. Por favor, tenta novamente ou contacta um administrador.';
                 });
                 
             }, 1500);
