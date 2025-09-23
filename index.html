@@ -871,10 +871,12 @@
         // Validate a form
         function validateForm(formId) {
             let isValid = true;
-            
+
             if (formId === 'playerForm') {
                 isValid = validateInput(document.getElementById('playerFirstName'), document.getElementById('playerFirstNameError')) &&
+                         validateNoLinks(document.getElementById('playerFirstName'), document.getElementById('playerFirstNameError')) &&
                          validateInput(document.getElementById('playerLastName'), document.getElementById('playerLastNameError')) &&
+                         validateNoLinks(document.getElementById('playerLastName'), document.getElementById('playerLastNameError')) &&
                          validateInput(document.getElementById('playerClass'), document.getElementById('playerClassError'));
             } else if (formId === 'guardForm') {
                 isValid = validateInput(document.getElementById('guardName'), document.getElementById('guardNameError')) &&
@@ -883,7 +885,7 @@
                          validateSelect(document.getElementById('guardBringPhone'), document.getElementById('guardBringPhoneError')) &&
                          validateSelect(document.getElementById('guardWilling'), document.getElementById('guardWillingError'));
             }
-            
+
             return isValid;
         }
         
