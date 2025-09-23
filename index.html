@@ -782,14 +782,36 @@
                     return true;
                 }
             };
-            
+
+            const validateNoLinks = (input, errorElement) => {
+                const value = input.value.trim();
+                const linkPatterns = [
+                    /https?:\/\//i,  // http:// or https://
+                    /<[^>]*>/,      // HTML tags like <a>
+                    /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/i  // Domain-like patterns
+                ];
+
+                for (const pattern of linkPatterns) {
+                    if (pattern.test(value)) {
+                        errorElement.textContent = 'Links não são permitidos';
+                        errorElement.style.display = 'block';
+                        return false;
+                    }
+                }
+
+                errorElement.style.display = 'none';
+                return true;
+            };
+
             // Player form validation
             document.getElementById('playerFirstName').addEventListener('blur', (e) => {
                 validateInput(e.target, document.getElementById('playerFirstNameError'));
+                validateNoLinks(e.target, document.getElementById('playerFirstNameError'));
             });
-            
+
             document.getElementById('playerLastName').addEventListener('blur', (e) => {
                 validateInput(e.target, document.getElementById('playerLastNameError'));
+                validateNoLinks(e.target, document.getElementById('playerLastNameError'));
             });
             
             document.getElementById('playerClass').addEventListener('blur', (e) => {
